@@ -29,6 +29,8 @@ import { TypeScriptInternals } from '../analyzer/TypeScriptInternals';
 import { MessageRouter } from './MessageRouter';
 import { AstReferenceResolver } from '../analyzer/AstReferenceResolver';
 import { ExtractorConfig } from '../api/ExtractorConfig';
+import {TSDocConfiguration} from '@microsoft/tsdoc';
+import {ImageTrustTags} from '../aedoc/ImageTrustTags';
 
 /**
  * Options for Collector constructor.
@@ -112,7 +114,10 @@ export class Collector {
     this.program = options.program;
     this.typeChecker = options.program.getTypeChecker();
 
-    this._tsdocParser = new tsdoc.TSDocParser(AedocDefinitions.tsdocConfiguration);
+    const tsDocConfig: TSDocConfiguration = AedocDefinitions.tsdocConfiguration;
+    ImageTrustTags.addImageTrustTags(tsDocConfig);
+
+    this._tsdocParser = new tsdoc.TSDocParser(tsDocConfig);
     this.astSymbolTable = new AstSymbolTable(this.program, this.typeChecker, this.packageJsonLookup,
       this.messageRouter);
     this.astReferenceResolver = new AstReferenceResolver(this.astSymbolTable, this.workingPackage);

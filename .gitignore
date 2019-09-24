@@ -73,3 +73,5 @@ package-deps.json
 
 # OS X
 .DS_Store
+
+.idea/**

@@ -2,7 +2,7 @@
 	"title": "Universal Reference YAML Schema for TypeScript",
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
-	"additionalProperties": false,
+	"additionalProperties": true,
 	"required": [
 		"items"
 	],
@@ -28,7 +28,7 @@
 	"definitions":{
 		"deprecated": {
 			"type": "object",
-			"additionalProperties": false,
+			"additionalProperties": true,
 			"properties": {
 				"content": {
 					"description": "The string following the default obsolete message. Supports markdown.",
@@ -38,7 +38,7 @@
 		},
 		"exception": {
 			"type": "object",
-			"additionalProperties": false,
+			"additionalProperties": true,
 			"properties": {
 				"description": {
 					"type": "string"
@@ -50,7 +50,7 @@
 		},
 		"item": {
 			"type": "object",
-			"additionalProperties": false,
+			"additionalProperties": true,
 			"required": [
 				"uid"
 			],
@@ -139,7 +139,7 @@
 		},
 		"parameter": {
 			"type": "object",
-			"additionalProperties": false,
+			"additionalProperties": true,
 			"properties": {
 				"description": {
 					"type": "string"
@@ -157,7 +157,7 @@
 		},
 		"reference": {
 			"type": "object",
-			"additionalProperties": false,
+			"additionalProperties": true,
 			"properties": {
 				"uid": {
 					"type": "string"
@@ -178,7 +178,7 @@
 		},
 		"spec": {
 			"type": "object",
-			"additionalProperties": false,
+			"additionalProperties": true,
 			"properties": {
 				"uid": {
 					"type": "string"
@@ -193,7 +193,7 @@
 		},
 		"remote": {
 			"type": "object",
-			"additionalProperties": false,
+			"additionalProperties": true,
 			"properties": {
 				"branch": {
 					"type": "string"
@@ -208,7 +208,7 @@
 		},
 		"return": {
 			"type": "object",
-			"additionalProperties": false,
+			"additionalProperties": true,
 			"properties": {
 				"description": {
 					"type": "string"
@@ -240,7 +240,7 @@
 		},
 		"syntax": {
 			"type": "object",
-			"additionalProperties": false,
+			"additionalProperties": true,
 			"properties": {
 				"content": {
 					"type": "string"

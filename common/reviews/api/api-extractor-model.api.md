@@ -112,10 +112,30 @@ export class ApiDeclaredItem extends ApiDocumentedItem {
 // @public
 export class ApiDocumentedItem extends ApiItem {
     constructor(options: IApiDocumentedItemOptions);
+    // (undocumented)
+    clhtml?: {
+        differs?: boolean;
+        notexists?: boolean;
+        text: string;
+    };
+    // (undocumented)
+    cljava?: {
+        differs?: boolean;
+        notexists?: boolean;
+        text: string;
+    };
+    // (undocumented)
+    importd?: {
+        differs?: boolean;
+        notexists?: boolean;
+        text: string;
+    };
     // Warning: (ae-forgotten-export) The symbol "IApiItemJson" needs to be exported by the entry point index.d.ts
     // 
     // @override (undocumented)
     static onDeserializeInto(options: Partial<IApiDocumentedItemOptions>, context: DeserializerContext, jsonObject: IApiItemJson): void;
+    // (undocumented)
+    seee?: string;
     // Warning: (ae-forgotten-export) The symbol "IApiDocumentedItemJson" needs to be exported by the entry point index.d.ts
     // 
     // @override (undocumented)
@@ -665,7 +685,27 @@ export interface IApiDeclaredItemOptions extends IApiDocumentedItemOptions {
 // @public
 export interface IApiDocumentedItemOptions extends IApiItemOptions {
     // (undocumented)
+    clhtml?: {
+        differs?: boolean;
+        notexists?: boolean;
+        text: string;
+    };
+    // (undocumented)
+    cljava?: {
+        differs?: boolean;
+        notexists?: boolean;
+        text: string;
+    };
+    // (undocumented)
     docComment: tsdoc.DocComment | undefined;
+    // (undocumented)
+    importd?: {
+        differs?: boolean;
+        notexists?: boolean;
+        text: string;
+    };
+    // (undocumented)
+    seee?: string;
 }
 
 // @public

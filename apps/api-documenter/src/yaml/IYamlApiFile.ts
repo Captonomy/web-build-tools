@@ -56,6 +56,9 @@ export interface IYamlItem {
   summary?: string;
   remarks?: string;
   syntax?: IYamlSyntax;
+  cljava?: object;
+  clhtml?: object;
+  importd?: object;
   uid: string;
 }
 

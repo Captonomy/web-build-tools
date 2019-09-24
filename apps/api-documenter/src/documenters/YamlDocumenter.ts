@@ -14,7 +14,7 @@ import {
   NewlineKind,
   InternalError
 } from '@microsoft/node-core-library';
-import { StringBuilder, DocSection, DocComment } from '@microsoft/tsdoc';
+import {StringBuilder, DocSection, DocComment} from '@microsoft/tsdoc';
 import {
   ApiModel,
   ApiItem,
@@ -55,8 +55,8 @@ import {
   IYamlTocFile,
   IYamlTocItem
 } from '../yaml/IYamlTocFile';
-import { Utilities } from '../utils/Utilities';
-import { CustomMarkdownEmitter} from '../markdown/CustomMarkdownEmitter';
+import {Utilities} from '../utils/Utilities';
+import {CustomMarkdownEmitter} from '../markdown/CustomMarkdownEmitter';
 
 const yamlApiSchema: JsonSchema = JsonSchema.fromFile(path.join(__dirname, '..', 'yaml', 'typescript.schema.json'));
 
@@ -93,7 +93,7 @@ export class YamlDocumenter {
     console.log();
     this._deleteOldOutputFiles();
 
-    for (const apiPackage of this._apiModel.packages) {
+    for(const apiPackage of this._apiModel.packages) {
       console.log(`Writing ${apiPackage.name} package`);
       this._visitApiItems(apiPackage, undefined);
     }
@@ -106,7 +106,7 @@ export class YamlDocumenter {
     return {
       name: 'SharePoint Framework reference',
       href: '~/overview/sharepoint.md',
-      items: [ ]
+      items: []
     };
   }
 
@@ -117,20 +117,20 @@ export class YamlDocumenter {
 
   private _visitApiItems(apiItem: ApiDocumentedItem, parentYamlFile: IYamlApiFile | undefined): boolean {
     let savedYamlReferences: IYamlReferences | undefined;
-    if (!this._shouldEmbed(apiItem.kind)) {
+    if(!this._shouldEmbed(apiItem.kind)) {
       savedYamlReferences = this._yamlReferences;
       this._yamlReferences = undefined;
     }
 
     const yamlItem: IYamlItem | undefined = this._generateYamlItem(apiItem);
-    if (!yamlItem) {
+    if(!yamlItem) {
       return false;
     }
 
     this.onCustomizeYamlItem(yamlItem);
 
-    if (this._shouldEmbed(apiItem.kind)) {
-      if (!parentYamlFile) {
+    if(this._shouldEmbed(apiItem.kind)) {
+      if(!parentYamlFile) {
         throw new InternalError('Missing file context');
       }
       parentYamlFile.items.push(yamlItem);
@@ -141,7 +141,7 @@ export class YamlDocumenter {
       newYamlFile.items.push(yamlItem);
 
       let children: ReadonlyArray<ApiItem>;
-      if (apiItem.kind === ApiItemKind.Package) {
+      if(apiItem.kind === ApiItemKind.Package) {
         // Skip over the entry point, since it's not part of the documentation hierarchy
         children = apiItem.members[0].members;
       } else {
@@ -150,10 +150,10 @@ export class YamlDocumenter {
 
       const flattenedChildren: ApiItem[] = this._flattenNamespaces(children);
 
-      for (const child of flattenedChildren) {
-        if (child instanceof ApiDocumentedItem) {
-          if (this._visitApiItems(child, newYamlFile)) {
-            if (!yamlItem.children) {
+      for(const child of flattenedChildren) {
+        if(child instanceof ApiDocumentedItem) {
+          if(this._visitApiItems(child, newYamlFile)) {
+            if(!yamlItem.children) {
               yamlItem.children = [];
             }
             yamlItem.children.push(this._getUid(child));
@@ -161,7 +161,7 @@ export class YamlDocumenter {
         }
       }
 
-      if (this._yamlReferences && this._yamlReferences.references.length > 0) {
+      if(this._yamlReferences && this._yamlReferences.references.length > 0) {
         newYamlFile.references = this._yamlReferences.references;
       }
 
@@ -169,13 +169,13 @@ export class YamlDocumenter {
 
       const yamlFilePath: string = this._getYamlFilePath(apiItem);
 
-      if (apiItem.kind === ApiItemKind.Package) {
+      if(apiItem.kind === ApiItemKind.Package) {
         console.log('Writing ' + yamlFilePath);
       }
 
       this._writeYamlFile(newYamlFile, yamlFilePath, 'UniversalReference', yamlApiSchema);
 
-      if (parentYamlFile) {
+      if(parentYamlFile) {
         this._recordYamlReference(
           this._ensureYamlReferences(),
           this._getUid(apiItem),
@@ -190,8 +190,8 @@ export class YamlDocumenter {
   // the tree.  However, _getYamlItemName() will show the namespace.
   private _flattenNamespaces(items: ReadonlyArray<ApiItem>): ApiItem[] {
     const flattened: ApiItem[] = [];
-    for (const item of items) {
-      if (item.kind === ApiItemKind.Namespace) {
+    for(const item of items) {
+      if(item.kind === ApiItemKind.Namespace) {
         flattened.push(... this._flattenNamespaces(item.members));
       } else {
         flattened.push(item);
@@ -214,7 +214,7 @@ export class YamlDocumenter {
   /** @virtual */
   protected buildYamlTocFile(apiItems: ReadonlyArray<ApiItem>): IYamlTocFile {
     const tocFile: IYamlTocFile = {
-      items: [ ]
+      items: []
     };
 
     const rootItem: IYamlTocItem = this.onGetTocRoot();
@@ -226,21 +226,21 @@ export class YamlDocumenter {
 
   private _buildTocItems(apiItems: ReadonlyArray<ApiItem>): IYamlTocItem[] {
     const tocItems: IYamlTocItem[] = [];
-    for (const apiItem of apiItems) {
+    for(const apiItem of apiItems) {
       let tocItem: IYamlTocItem;
 
-      if (apiItem.kind === ApiItemKind.Namespace) {
+      if(apiItem.kind === ApiItemKind.Namespace) {
         // Namespaces don't have nodes yet
         tocItem = {
           name: apiItem.displayName
         };
       } else {
-        if (this._shouldEmbed(apiItem.kind)) {
+        if(this._shouldEmbed(apiItem.kind)) {
           // Don't generate table of contents items for embedded definitions
           continue;
         }
 
-        if (apiItem.kind === ApiItemKind.Package) {
+        if(apiItem.kind === ApiItemKind.Package) {
           tocItem = {
             name: PackageName.getUnscopedName(apiItem.displayName),
             uid: this._getUid(apiItem)
@@ -256,7 +256,7 @@ export class YamlDocumenter {
       tocItems.push(tocItem);
 
       let children: ReadonlyArray<ApiItem>;
-      if (apiItem.kind === ApiItemKind.Package) {
+      if(apiItem.kind === ApiItemKind.Package) {
         // Skip over the entry point, since it's not part of the documentation hierarchy
         children = apiItem.members[0].members;
       } else {
@@ -264,7 +264,7 @@ export class YamlDocumenter {
       }
 
       const childItems: IYamlTocItem[] = this._buildTocItems(children);
-      if (childItems.length > 0) {
+      if(childItems.length > 0) {
         tocItem.items = childItems;
       }
     }
@@ -272,19 +272,19 @@ export class YamlDocumenter {
   }
 
   protected _shouldEmbed(apiItemKind: ApiItemKind): boolean {
-    switch (apiItemKind) {
+    switch(apiItemKind) {
       case ApiItemKind.Class:
       case ApiItemKind.Package:
       case ApiItemKind.Interface:
       case ApiItemKind.Enum:
-      return false;
+        return false;
     }
     return true;
   }
 
   private _generateYamlItem(apiItem: ApiDocumentedItem): IYamlItem | undefined {
     // Filter out known items that are not yet supported
-    switch (apiItem.kind) {
+    switch(apiItem.kind) {
       case ApiItemKind.CallSignature:
       case ApiItemKind.ConstructSignature:
       case ApiItemKind.IndexSignature:
@@ -298,32 +298,39 @@ export class YamlDocumenter {
       uid: uid.toString()
     };
 
-    if (apiItem.tsdocComment) {
+    if(apiItem.tsdocComment) {
       const tsdocComment: DocComment = apiItem.tsdocComment;
-      if (tsdocComment.summarySection) {
+      if(tsdocComment.summarySection) {
         const summary: string = this._renderMarkdown(tsdocComment.summarySection, apiItem);
-        if (summary) {
+        if(summary) {
           yamlItem.summary = summary;
         }
       }
 
-      if (tsdocComment.remarksBlock) {
+      if(tsdocComment.remarksBlock) {
         const remarks: string = this._renderMarkdown(tsdocComment.remarksBlock.content, apiItem);
-        if (remarks) {
+        if(remarks) {
           yamlItem.remarks = remarks;
         }
       }
 
-      if (tsdocComment.deprecatedBlock) {
+      if(tsdocComment.deprecatedBlock) {
         const deprecatedMessage: string = this._renderMarkdown(tsdocComment.deprecatedBlock.content, apiItem);
-        if (deprecatedMessage.length > 0) {
-          yamlItem.deprecated = { content: deprecatedMessage };
+        if(deprecatedMessage.length > 0) {
+          yamlItem.deprecated = {content: deprecatedMessage};
         }
       }
     }
 
-    if (ApiReleaseTagMixin.isBaseClassOf(apiItem)) {
-      if (apiItem.releaseTag === ReleaseTag.Beta) {
+    if(apiItem.cljava)
+      yamlItem.cljava = apiItem.cljava;
+    if(apiItem.clhtml)
+      yamlItem.clhtml = apiItem.clhtml;
+    if(apiItem.importd)
+      yamlItem.importd = apiItem.importd;
+
+    if(ApiReleaseTagMixin.isBaseClassOf(apiItem)) {
+      if(apiItem.releaseTag === ReleaseTag.Beta) {
         yamlItem.isPreview = true;
       }
     }
@@ -331,9 +338,9 @@ export class YamlDocumenter {
     yamlItem.name = this._getYamlItemName(apiItem);
 
     yamlItem.fullName = yamlItem.name;
-    yamlItem.langs = [ 'typeScript' ];
+    yamlItem.langs = ['typeScript'];
 
-    switch (apiItem.kind) {
+    switch(apiItem.kind) {
       case ApiItemKind.Enum:
         yamlItem.type = 'enum';
         break;
@@ -341,7 +348,7 @@ export class YamlDocumenter {
         yamlItem.type = 'field';
         const enumMember: ApiEnumMember = apiItem as ApiEnumMember;
 
-        if (enumMember.initializerExcerpt.text.length > 0) {
+        if(enumMember.initializerExcerpt.text.length > 0) {
           yamlItem.numericValue = enumMember.initializerExcerpt.text;
         }
 
@@ -371,7 +378,7 @@ export class YamlDocumenter {
       case ApiItemKind.Property:
       case ApiItemKind.PropertySignature:
         const apiProperty: ApiPropertyItem = apiItem as ApiPropertyItem;
-        if (apiProperty.isEventProperty) {
+        if(apiProperty.isEventProperty) {
           yamlItem.type = 'event';
         } else {
           yamlItem.type = 'property';
@@ -388,9 +395,9 @@ export class YamlDocumenter {
         throw new Error('Unimplemented item kind: ' + apiItem.kind);
     }
 
-    if (apiItem.kind !== ApiItemKind.Package && !this._shouldEmbed(apiItem.kind)) {
+    if(apiItem.kind !== ApiItemKind.Package && !this._shouldEmbed(apiItem.kind)) {
       const associatedPackage: ApiPackage | undefined = apiItem.getAssociatedPackage();
-      if (!associatedPackage) {
+      if(!associatedPackage) {
         throw new Error('Unable to determine associated package for ' + apiItem.displayName);
       }
       yamlItem.package = this._getUid(associatedPackage);
@@ -403,17 +410,17 @@ export class YamlDocumenter {
     IYamlParameter[] {
 
     const typeParameters: IYamlParameter[] = [];
-    for (const apiTypeParameter of apiItem.typeParameters) {
+    for(const apiTypeParameter of apiItem.typeParameters) {
       const typeParameter: IYamlParameter = {
         id: apiTypeParameter.name
       };
 
-      if (apiTypeParameter.tsdocTypeParamBlock) {
+      if(apiTypeParameter.tsdocTypeParamBlock) {
         typeParameter.description = this._renderMarkdown(apiTypeParameter.tsdocTypeParamBlock.content, apiItem);
       }
 
-      if (!apiTypeParameter.constraintExcerpt.isEmpty) {
-        typeParameter.type = [ this._renderType(contextUid, apiTypeParameter.constraintExcerpt) ];
+      if(!apiTypeParameter.constraintExcerpt.isEmpty) {
+        typeParameter.type = [this._renderType(contextUid, apiTypeParameter.constraintExcerpt)];
       }
 
       typeParameters.push(typeParameter);
@@ -424,39 +431,39 @@ export class YamlDocumenter {
   private _populateYamlClassOrInterface(uid: DeclarationReference, yamlItem: Partial<IYamlItem>, apiItem: ApiClass |
     ApiInterface): void {
 
-    if (apiItem instanceof ApiClass) {
-      if (apiItem.extendsType) {
-        yamlItem.extends = [ this._renderType(uid, apiItem.extendsType.excerpt) ];
+    if(apiItem instanceof ApiClass) {
+      if(apiItem.extendsType) {
+        yamlItem.extends = [this._renderType(uid, apiItem.extendsType.excerpt)];
       }
-      if (apiItem.implementsTypes.length > 0) {
+      if(apiItem.implementsTypes.length > 0) {
         yamlItem.implements = [];
-        for (const implementsType of apiItem.implementsTypes) {
+        for(const implementsType of apiItem.implementsTypes) {
           yamlItem.implements.push(this._renderType(uid, implementsType.excerpt));
         }
       }
-    } else if (apiItem instanceof ApiInterface) {
-      if (apiItem.extendsTypes.length > 0) {
+    } else if(apiItem instanceof ApiInterface) {
+      if(apiItem.extendsTypes.length > 0) {
         yamlItem.extends = [];
-        for (const extendsType of apiItem.extendsTypes) {
+        for(const extendsType of apiItem.extendsTypes) {
           yamlItem.extends.push(this._renderType(uid, extendsType.excerpt));
         }
       }
 
       const typeParameters: IYamlParameter[] = this._populateYamlTypeParameters(uid, apiItem);
-      if (typeParameters.length) {
-        yamlItem.syntax = { typeParameters };
+      if(typeParameters.length) {
+        yamlItem.syntax = {typeParameters};
       }
     }
 
-    if (apiItem.tsdocComment) {
-      if (apiItem.tsdocComment.modifierTagSet.isSealed()) {
+    if(apiItem.tsdocComment) {
+      if(apiItem.tsdocComment.modifierTagSet.isSealed()) {
         let sealedMessage: string;
-        if (apiItem.kind === ApiItemKind.Class) {
+        if(apiItem.kind === ApiItemKind.Class) {
           sealedMessage = 'This class is marked as `@sealed`. Subclasses should not extend it.';
         } else {
           sealedMessage = 'This interface is marked as `@sealed`. Other interfaces should not extend it.';
         }
-        if (!yamlItem.remarks) {
+        if(!yamlItem.remarks) {
           yamlItem.remarks = sealedMessage;
         } else {
           yamlItem.remarks = sealedMessage + '\n\n' + yamlItem.remarks;
@@ -473,48 +480,48 @@ export class YamlDocumenter {
     };
     yamlItem.syntax = syntax;
 
-    if (ApiReturnTypeMixin.isBaseClassOf(apiItem)) {
+    if(ApiReturnTypeMixin.isBaseClassOf(apiItem)) {
       const returnType: string = this._renderType(uid, apiItem.returnTypeExcerpt);
 
       let returnDescription: string = '';
 
-      if (apiItem.tsdocComment && apiItem.tsdocComment.returnsBlock) {
+      if(apiItem.tsdocComment && apiItem.tsdocComment.returnsBlock) {
         returnDescription = this._renderMarkdown(apiItem.tsdocComment.returnsBlock.content, apiItem);
         // temporary workaround for people who mistakenly add a hyphen, e.g. "@returns - blah"
         returnDescription = returnDescription.replace(/^\s*-\s+/, '');
       }
 
-      if (returnType || returnDescription) {
+      if(returnType || returnDescription) {
         syntax.return = {
-          type: [ returnType ],
+          type: [returnType],
           description: returnDescription
         };
       }
     }
 
     const parameters: IYamlParameter[] = [];
-    for (const apiParameter of apiItem.parameters) {
+    for(const apiParameter of apiItem.parameters) {
       let parameterDescription: string = '';
-      if (apiParameter.tsdocParamBlock) {
+      if(apiParameter.tsdocParamBlock) {
         parameterDescription = this._renderMarkdown(apiParameter.tsdocParamBlock.content, apiItem);
       }
 
       parameters.push(
         {
-           id: apiParameter.name,
-           description:  parameterDescription,
-           type: [ this._renderType(uid, apiParameter.parameterTypeExcerpt) ]
+          id: apiParameter.name,
+          description: parameterDescription,
+          type: [this._renderType(uid, apiParameter.parameterTypeExcerpt)]
         } as IYamlParameter
       );
     }
 
-    if (parameters.length) {
+    if(parameters.length) {
       syntax.parameters = parameters;
     }
 
-    if (ApiTypeParameterListMixin.isBaseClassOf(apiItem)) {
+    if(ApiTypeParameterListMixin.isBaseClassOf(apiItem)) {
       const typeParameters: IYamlParameter[] = this._populateYamlTypeParameters(uid, apiItem);
-      if (typeParameters.length) {
+      if(typeParameters.length) {
         syntax.typeParameters = typeParameters;
       }
     }
@@ -529,9 +536,9 @@ export class YamlDocumenter {
     };
     yamlItem.syntax = syntax;
 
-    if (apiItem.propertyTypeExcerpt.text) {
+    if(apiItem.propertyTypeExcerpt.text) {
       syntax.return = {
-        type: [ this._renderType(uid, apiItem.propertyTypeExcerpt) ]
+        type: [this._renderType(uid, apiItem.propertyTypeExcerpt)]
       };
     }
   }
@@ -552,7 +559,7 @@ export class YamlDocumenter {
   }
 
   private _writeYamlFile(dataObject: {}, filePath: string, yamlMimeType: string,
-    schema: JsonSchema|undefined): void {
+                         schema: JsonSchema | undefined): void {
 
     JsonFile.validateNoUndefinedMembers(dataObject);
 
@@ -560,7 +567,7 @@ export class YamlDocumenter {
       lineWidth: 120
     });
 
-    if (yamlMimeType) {
+    if(yamlMimeType) {
       stringified = `### YamlMime:${yamlMimeType}\n` + stringified;
     }
 
@@ -569,7 +576,7 @@ export class YamlDocumenter {
       ensureFolderExists: true
     });
 
-    if (schema) {
+    if(schema) {
       schema.validateObject(dataObject, filePath);
     }
   }
@@ -598,20 +605,20 @@ export class YamlDocumenter {
    * Helper for _initApiItems()
    */
   private _initApiItemsRecursive(apiItem: ApiItem): void {
-    if (apiItem.canonicalReference && !apiItem.canonicalReference.isEmpty) {
+    if(apiItem.canonicalReference && !apiItem.canonicalReference.isEmpty) {
       this._apiItemsByCanonicalReference.set(apiItem.canonicalReference.toString(), apiItem);
     }
 
     // Recurse container members
-    if (ApiItemContainerMixin.isBaseClassOf(apiItem)) {
-      for (const apiMember of apiItem.members) {
+    if(ApiItemContainerMixin.isBaseClassOf(apiItem)) {
+      for(const apiMember of apiItem.members) {
         this._initApiItemsRecursive(apiMember);
       }
     }
   }
 
   private _ensureYamlReferences(): IYamlReferences {
-    if (!this._yamlReferences) {
+    if(!this._yamlReferences) {
       this._yamlReferences = {
         references: [],
         typeNameToUid: new Map(),
@@ -626,15 +633,15 @@ export class YamlDocumenter {
       typeExcerpt.tokenRange.startIndex,
       typeExcerpt.tokenRange.endIndex);
 
-    if (excerptTokens.length === 0) {
+    if(excerptTokens.length === 0) {
       return '';
     }
 
     // Remove the last token if it consists only of whitespace
     const lastToken: ExcerptToken = excerptTokens[excerptTokens.length - 1];
-    if (lastToken.kind === ExcerptTokenKind.Content && !lastToken.text.trim()) {
+    if(lastToken.kind === ExcerptTokenKind.Content && !lastToken.text.trim()) {
       excerptTokens.pop();
-      if (excerptTokens.length === 0) {
+      if(excerptTokens.length === 0) {
         return '';
       }
     }
@@ -642,7 +649,7 @@ export class YamlDocumenter {
     const typeName: string = typeExcerpt.text.trim();
 
     // If there are no references to be used for a complex type, return the type name.
-    if (!excerptTokens.some(tok => tok.kind === ExcerptTokenKind.Reference && !!tok.canonicalReference)) {
+    if(!excerptTokens.some(tok => tok.kind === ExcerptTokenKind.Reference && !!tok.canonicalReference)) {
       return typeName;
     }
 
@@ -650,12 +657,12 @@ export class YamlDocumenter {
     const existingUid: string | undefined = yamlReferences.typeNameToUid.get(typeName);
 
     // If this type has already been referenced for the current file, return its uid.
-    if (existingUid) {
+    if(existingUid) {
       return existingUid;
     }
 
     // If the excerpt consists of a single reference token, record the reference.
-    if (excerptTokens.length === 1 &&
+    if(excerptTokens.length === 1 &&
       excerptTokens[0].kind === ExcerptTokenKind.Reference &&
       excerptTokens[0].canonicalReference) {
       return this._recordYamlReference(
@@ -668,9 +675,9 @@ export class YamlDocumenter {
     // Otherwise, the type is complex and consists of one or more reference tokens. Record a reference
     // and return its uid.
     const baseUid: string = contextUid
-      .withMeaning(undefined)
-      .withOverloadIndex(undefined)
-      .toString();
+    .withMeaning(undefined)
+    .withOverloadIndex(undefined)
+    .toString();
 
     // Keep track of the count for the base uid (without meaning or overload index) to ensure
     // that each complex type reference is unique.
@@ -678,41 +685,41 @@ export class YamlDocumenter {
     yamlReferences.uidTypeReferenceCounters.set(baseUid, counter + 1);
 
     const uid: string = contextUid
-      .addNavigationStep(Navigation.Locals, `${counter}`)
-      .withMeaning(Meaning.ComplexType)
-      .withOverloadIndex(undefined)
-      .toString();
+    .addNavigationStep(Navigation.Locals, `${counter}`)
+    .withMeaning(Meaning.ComplexType)
+    .withOverloadIndex(undefined)
+    .toString();
 
     return this._recordYamlReference(yamlReferences, uid, typeName, excerptTokens);
   }
 
   private _recordYamlReference(yamlReferences: IYamlReferences, uid: string, typeName: string,
-    excerptTokens?: ExcerptToken[]): string {
+                               excerptTokens?: ExcerptToken[]): string {
 
-    if (yamlReferences.references.some(ref => ref.uid === uid)) {
+    if(yamlReferences.references.some(ref => ref.uid === uid)) {
       return uid;
     }
 
     // Fill in the reference spec from the excerpt.
     const specs: IYamlReferenceSpec[] = [];
-    if (excerptTokens) {
-      for (const token of excerptTokens) {
-        if (token.kind === ExcerptTokenKind.Reference) {
-          const spec: IYamlReferenceSpec = { };
+    if(excerptTokens) {
+      for(const token of excerptTokens) {
+        if(token.kind === ExcerptTokenKind.Reference) {
+          const spec: IYamlReferenceSpec = {};
           const specUid: string | undefined = token.canonicalReference && token.canonicalReference.toString();
           const apiItem: ApiItem | undefined = specUid ? this._apiItemsByCanonicalReference.get(specUid) : undefined;
-          if (specUid) {
+          if(specUid) {
             spec.uid = specUid;
           }
           spec.name = token.text;
           spec.fullName =
             apiItem ? apiItem.getScopedNameWithinPackage() :
-            token.canonicalReference ? token.canonicalReference
-              .withSource(undefined)
-              .withMeaning(undefined)
-              .withOverloadIndex(undefined)
-              .toString() :
-            token.text;
+              token.canonicalReference ? token.canonicalReference
+                .withSource(undefined)
+                .withMeaning(undefined)
+                .withOverloadIndex(undefined)
+                .toString() :
+                token.text;
           specs.push(spec);
         } else {
           specs.push(
@@ -725,12 +732,12 @@ export class YamlDocumenter {
       }
     }
 
-    const yamlReference: IYamlReference = { uid };
-    if (specs.length > 0) {
+    const yamlReference: IYamlReference = {uid};
+    if(specs.length > 0) {
       yamlReference.name = specs.map(s => s.name).join('').trim();
       yamlReference.fullName = specs.map(s => s.fullName || s.name).join('').trim();
       yamlReference['spec.typeScript'] = specs;
-    } else if (typeName !== uid) {
+    } else if(typeName !== uid) {
       yamlReference.name = typeName;
     }
 
@@ -739,7 +746,7 @@ export class YamlDocumenter {
   }
 
   private _getYamlItemName(apiItem: ApiItem): string {
-    if (apiItem.parent && apiItem.parent.kind === ApiItemKind.Namespace) {
+    if(apiItem.parent && apiItem.parent.kind === ApiItemKind.Namespace) {
       // If the immediate parent is a namespace, then add the namespaces to the name.  For example:
       //
       //   // Name: "N1"
@@ -766,10 +773,10 @@ export class YamlDocumenter {
       // embeds this entry in the web page for "N1.N2.C", so the container is obvious.  Whereas "N1.N2.f(x,y)"
       // needs to be qualified because the DocFX template doesn't make pages for namespaces.  Instead, they get
       // flattened into the package's page.
-      const nameParts: string[] = [ Utilities.getConciseSignature(apiItem) ];
+      const nameParts: string[] = [Utilities.getConciseSignature(apiItem)];
 
-      for (let current: ApiItem | undefined = apiItem.parent; current; current = current.parent) {
-        if (current.kind !== ApiItemKind.Namespace) {
+      for(let current: ApiItem | undefined = apiItem.parent; current; current = current.parent) {
+        if(current.kind !== ApiItemKind.Namespace) {
           break;
         }
 
@@ -785,8 +792,8 @@ export class YamlDocumenter {
   private _getYamlFilePath(apiItem: ApiItem): string {
     let result: string = '';
 
-    for (const current of apiItem.getHierarchy()) {
-      switch (current.kind) {
+    for(const current of apiItem.getHierarchy()) {
+      switch(current.kind) {
         case ApiItemKind.Model:
         case ApiItemKind.EntryPoint:
           break;
@@ -794,7 +801,7 @@ export class YamlDocumenter {
           result += Utilities.getSafeFilenameForName(PackageName.getUnscopedName(current.displayName));
           break;
         default:
-          if (current.parent && current.parent.kind === ApiItemKind.EntryPoint) {
+          if(current.parent && current.parent.kind === ApiItemKind.EntryPoint) {
             result += '/';
           } else {
             result += '.';
