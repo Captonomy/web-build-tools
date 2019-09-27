@@ -232,7 +232,8 @@ export class YamlDocumenter {
       if(apiItem.kind === ApiItemKind.Namespace) {
         // Namespaces don't have nodes yet
         tocItem = {
-          name: apiItem.displayName
+          name: apiItem.displayName,
+          uid: this._getUid(apiItem)
         };
       } else {
         if(this._shouldEmbed(apiItem.kind)) {
